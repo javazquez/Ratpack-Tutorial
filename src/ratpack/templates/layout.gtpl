@@ -7,7 +7,7 @@ yieldUnescaped '''<!doctype html>
 //look at https://raw.githubusercontent.com/ratpack/ratpack/master/ratpack-site/src/ratpack/templates/layout.gtpl as an example
 head {
   meta(charset:'utf-8')
-  title('Ratpack: Simple, lean & powerful HTTP apps')
+  title('Custom error page')
 
   meta(name: 'apple-mobile-web-app-title', content: 'Ratpack')
   meta(name: 'description', content: 'Ratpack apps are lightweight, fast, composable with other tools and libraries, easy to test and enjoyable to develop.')

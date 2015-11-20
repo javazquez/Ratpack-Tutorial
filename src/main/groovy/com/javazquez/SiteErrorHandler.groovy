@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ class SiteErrorHandler implements ErrorHandler {
   @Override
   void error(Context context, int statusCode) {
     context.response.status(statusCode)
-    message(context, statusCode == 404 ? "The page you have requested does not exist." : "The request is invalid (HTTP $statusCode).")
+    message(context, statusCode == 404 ? "The page you have requested does not exist. [SiteErrorHandler.groovy]" : "The request is invalid (HTTP $statusCode).[SiteErrorHandler.groovy]")
     if (statusCode == 404) {
       log.error "404 for $context.request.path"
     }
@@ -46,10 +46,10 @@ class SiteErrorHandler implements ErrorHandler {
     }
   }
 
-//not using message at this time, hence the commented out code
+
   static void message(Context context, CharSequence message) {
-    context.render("This is not the page you are looking for")
-    //context.render(groovyMarkupTemplate("error.gtpl", message: message.toString(), statusCode: context.response.status.code))
+//    context.render("This is not the page you are looking for")
+      context.render(groovyMarkupTemplate("error.gtpl", message: message.toString(), statusCode: context.response.status.code))
   }
 
 }

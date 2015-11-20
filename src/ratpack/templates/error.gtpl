@@ -5,6 +5,7 @@ bodyContents: contents {
   section(id="main") {
     article(class: "content") {
       h3(message ?: 'Something appears to have gone wrong. Sorry about that.')
+      p('Sorry about that :(')
     }
   }
 }

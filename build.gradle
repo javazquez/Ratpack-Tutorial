@@ -29,5 +29,6 @@ dependencies {
   compile ratpack.dependency('session')
   compile ratpack.dependency('pac4j')
   compile "org.pac4j:pac4j-http:1.7.0"
+  compile "org.pac4j:pac4j-oauth:1.7.0"
   testCompile "org.spockframework:spock-core:1.0-groovy-2.4"
 }

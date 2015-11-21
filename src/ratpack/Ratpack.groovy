@@ -8,14 +8,10 @@ import ratpack.path.PathBinding
 import ratpack.error.ClientErrorHandler
 import com.javazquez.ApiErrorHandler
 
-import org.pac4j.http.client.BasicAuthClient
-import org.pac4j.http.credentials.SimpleTestUsernamePasswordAuthenticator
-import org.pac4j.http.profile.UsernameProfileCreator
 import ratpack.pac4j.RatpackPac4j
 import ratpack.session.Session
 import ratpack.session.SessionModule
-import ratpack.session.clientside.ClientSideSessionModule
-
+import org.pac4j.oauth.client.GitHubClient
 
 
 ratpack {
@@ -33,6 +29,7 @@ ratpack {
   }
 
   handlers {
+
 
     get{
       //lets access request params
@@ -127,26 +124,28 @@ ratpack {
      */
     files { dir "public" }
 
-    //lets add basic auth handler to this groovychain for downstream handlers
-    all(RatpackPac4j.authenticator(
-    new BasicAuthClient(
-      new SimpleTestUsernamePasswordAuthenticator(),
-      new UsernameProfileCreator())))
+    /* NOTE: set Authorization URL in Github admin screen to root of app
+      for this example http://localhost:5050/ is the root
+      lets add GitHubClient to this groovychain for downstream handlers 
+      details for client at the following URL
+      http://www.pac4j.org/apidocs/pac4j/org/pac4j/oauth/client/GitHubClient.html
+      */
+    all(RatpackPac4j.authenticator(new GitHubClient('key', 'secret')))
 
 
-    prefix("basicAuth"){
+    prefix("githubAuth"){
       //Require all requests past this point to have auth.
       //user admin ,pwd = admin
-      all(RatpackPac4j.requireAuth(BasicAuthClient))
-
+      all(RatpackPac4j.requireAuth(GitHubClient))
       get{ ctx ->
         render "An authenticated page. SessionId is  ${ctx.get(Session.class).getId()}"
       }
       get('logout/'){ ctx ->
         RatpackPac4j.logout(ctx).then {
-          ctx.redirect('/basicAuth')
+          ctx.redirect('/gitHubAuth')
         }
       }
+
     }
   }
 

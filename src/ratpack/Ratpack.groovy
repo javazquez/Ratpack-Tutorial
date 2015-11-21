@@ -8,15 +8,32 @@ import ratpack.path.PathBinding
 import ratpack.error.ClientErrorHandler
 import com.javazquez.ApiErrorHandler
 
+import org.pac4j.http.client.BasicAuthClient
+import org.pac4j.http.credentials.SimpleTestUsernamePasswordAuthenticator
+import org.pac4j.http.profile.UsernameProfileCreator
+import ratpack.pac4j.RatpackPac4j
+import ratpack.session.Session
+import ratpack.session.SessionModule
+import ratpack.session.clientside.ClientSideSessionModule
+
+
 
 ratpack {
   bindings {
+    /* The SessionModule will make sure every request is set up with a session.
+     Also by default provide an in memory session data store.
+     resources
+     http://beckje01.com/talks/gr8us-2015-sec-ratpack.html#/6/1
+     https://github.com/beckje01/ratpack-gr8us-sec/blob/basicAuth/src/ratpack/Ratpack.groovy
+     */
+    module SessionModule
     module MarkupTemplateModule
     module HandlebarsModule
     bind com.javazquez.SiteErrorHandler //this is global
   }
 
   handlers {
+
     get{
       //lets access request params
       if(!request.queryParams.isEmpty()){
@@ -109,5 +126,28 @@ ratpack {
        will serve the sticky-footer-navbar.css file
      */
     files { dir "public" }
+
+    //lets add basic auth handler to this groovychain for downstream handlers
+    all(RatpackPac4j.authenticator(
+    new BasicAuthClient(
+      new SimpleTestUsernamePasswordAuthenticator(),
+      new UsernameProfileCreator())))
+
+
+    prefix("basicAuth"){
+      //Require all requests past this point to have auth.
+      //user admin ,pwd = admin
+      all(RatpackPac4j.requireAuth(BasicAuthClient))
+
+      get{ ctx ->
+        render "An authenticated page. SessionId is  ${ctx.get(Session.class).getId()}"
+      }
+      get('logout/'){ ctx ->
+        RatpackPac4j.logout(ctx).then {
+          ctx.redirect('/basicAuth')
+        }
+      }
+    }
   }
+
 }

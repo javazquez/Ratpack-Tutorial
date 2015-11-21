@@ -31,9 +31,17 @@ class SiteErrorHandler implements ErrorHandler {
   @Override
   void error(Context context, int statusCode) {
     context.response.status(statusCode)
-    message(context, statusCode == 404 ? "The page you have requested does not exist. [SiteErrorHandler.groovy]" : "The request is invalid (HTTP $statusCode).[SiteErrorHandler.groovy]")
-    if (statusCode == 404) {
-      log.error "404 for $context.request.path"
+    String msg =''
+    if(statusCode == 404){
+      msg = "The page you have requested does not exist. [SiteErrorHandler.groovy]"
+    }else if(statusCode == 401){
+      msg = "You are not Authorized to view the page you have requested. [SiteErrorHandler.groovy]"
+    }else{
+      msg ="The request is invalid (HTTP $statusCode).[SiteErrorHandler.groovy]"
+    }
+    message(context, msg)
+    if (statusCode) {
+      log.error "$statusCode for $context.request.path"
     }
   }
 

@@ -4,7 +4,7 @@ buildscript {
   }
   dependencies {
     // classpath "io.ratpack:ratpack-gradle:0.9.19"
-    classpath "io.ratpack:ratpack-gradle:1.0.0"
+    classpath "io.ratpack:ratpack-gradle:1.1.1"
     classpath "com.github.jengelman.gradle.plugins:shadow:1.2.2"
   }
 }
@@ -26,5 +26,8 @@ dependencies {
   // See here for a non blocking appender http://logging.apache.org/log4j/2.x/manual/async.html
   runtime 'org.slf4j:slf4j-simple:1.7.12'
   compile ratpack.dependency("handlebars")
+  compile ratpack.dependency('session')
+  compile ratpack.dependency('pac4j')
+  compile "org.pac4j:pac4j-http:1.7.0"
   testCompile "org.spockframework:spock-core:1.0-groovy-2.4"
 }

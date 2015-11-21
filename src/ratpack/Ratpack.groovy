@@ -126,7 +126,7 @@ ratpack {
 
     /* NOTE: set Authorization URL in Github admin screen to root of app
       for this example http://localhost:5050/ is the root
-      lets add GitHubClient to this groovychain for downstream handlers 
+      lets add GitHubClient to this groovychain for downstream handlers
       details for client at the following URL
       http://www.pac4j.org/apidocs/pac4j/org/pac4j/oauth/client/GitHubClient.html
       */
@@ -142,7 +142,7 @@ ratpack {
       }
       get('logout/'){ ctx ->
         RatpackPac4j.logout(ctx).then {
-          ctx.redirect('/gitHubAuth')
+          redirect('/githubAuth')
         }
       }
 

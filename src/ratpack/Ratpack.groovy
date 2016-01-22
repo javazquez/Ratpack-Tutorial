@@ -8,11 +8,15 @@ import ratpack.path.PathBinding
 import ratpack.error.ClientErrorHandler
 import com.javazquez.ApiErrorHandler
 
+import ratpack.handling.Context
 import ratpack.pac4j.RatpackPac4j
 import ratpack.session.Session
 import ratpack.session.SessionModule
 import org.pac4j.oauth.client.GitHubClient
-
+//More info at https://github.com/ratpack/ratpack-asset-pipeline and
+// http://ratpack.io/manual/current/static-assets.html#asset_pipeline
+import asset.pipeline.ratpack.AssetPipelineModule
+import org.pac4j.oauth.profile.github.GitHubProfile
 
 ratpack {
   bindings {
@@ -26,11 +30,16 @@ ratpack {
     module MarkupTemplateModule
     module HandlebarsModule
     bind com.javazquez.SiteErrorHandler //this is global
+    module(AssetPipelineModule) { config ->
+      // only matters at development time, and path is relative to the build path
+       config.sourcePath ="../../../src/assets"
+    }
+    // added above module and code ^^^^ based on this example in the below link
+    // https://github.com/robfletcher/midcentury-ipsum/blob/master/src/main/kotlin/com/energizedwork/midcenturyipsum/Main.kt#L55
+    //suggested per https://github.com/bertramdev/asset-pipeline/issues/55
   }
 
   handlers {
-
-
     get{
       //lets access request params
       if(!request.queryParams.isEmpty()){
@@ -136,14 +145,39 @@ ratpack {
     prefix("githubAuth"){
       //Require all requests past this point to have auth.
       //user admin ,pwd = admin
-      all(RatpackPac4j.requireAuth(GitHubClient))
-      get{ ctx ->
-        render "An authenticated page. SessionId is  ${ctx.get(Session.class).getId()}"
-      }
-      get('logout/'){ ctx ->
-        RatpackPac4j.logout(ctx).then {
-          redirect('/githubAuth')
+      // all(RatpackPac4j.requireAuth(GitHubClient))
+      get{ Session session, Context ctx ->
+        RatpackPac4j.userProfile(ctx, GitHubProfile).route({
+          !it.isPresent()
+        }, {
+          ctx.response.send('text/html', 'No profile, click <a href="/githubAuth/login">here</a> to login')
+        }).then{
+          //ctx.get(Session).id
+          render "An authenticated page. SessionId is $session.id"
         }
+      }
+
+      get('login') { ctx ->
+        RatpackPac4j.login(ctx, GitHubClient).then {
+          ctx.redirect('/githubAuth')
+        }
+      }
+      get('testRoute'){Session session, Context ctx ->
+        RatpackPac4j.userProfile(ctx, GitHubProfile).route({
+          !it.isPresent()
+        }, {
+          ctx.response.send('text/html', 'No profile, click <a href="/githubAuth/login">here</a> to login')
+        }).then{
+          session.getId()
+          render "An authenticated page. SessionId is  ${ctx.get(Session).id}"
+        }
+      }
+      get('logout'){ Session session, Context ctx ->
+        RatpackPac4j.logout(ctx)
+        .flatMap{session.remove(ctx.get(Session).id).promise()}
+        .flatMap {session.terminate().promise()}
+        .then {
+          ctx.redirect('/githubAuth')}
       }
 
     }

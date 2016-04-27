@@ -18,8 +18,19 @@ import org.pac4j.oauth.client.GitHubClient
 import asset.pipeline.ratpack.AssetPipelineModule
 import org.pac4j.oauth.profile.github.GitHubProfile
 
+import ratpack.config.ConfigData
+import ratpack.dropwizard.metrics.DropwizardMetricsConfig
+import ratpack.dropwizard.metrics.DropwizardMetricsModule
+import ratpack.dropwizard.metrics.MetricsWebsocketBroadcastHandler
+
 ratpack {
+    serverConfig {
+      props("application.properties")
+      require("/metrics", DropwizardMetricsConfig)
+    }
   bindings {
+    moduleConfig(DropwizardMetricsModule, DropwizardMetricsConfig)
+
     /* The SessionModule will make sure every request is set up with a session.
      Also by default provide an in memory session data store.
      resources
@@ -50,9 +61,15 @@ ratpack {
       }
     }
 
+    get("metrics") {
+       render groovyMarkupTemplate("metrics.gtpl", title: "Metrics")
+    }
+    get("metrics-report", new MetricsWebsocketBroadcastHandler())
+
     get("register/"){
        render file("public/pages/registerForm.html")
     }
+
     get("contactus/"){
       render file("public/pages/contactus.html")
     }

@@ -31,5 +31,6 @@ dependencies {
   compile "org.pac4j:pac4j-oauth:1.7.0"
   //see https://github.com/bertramdev/ratpack-asset-pipeline for more details
   compile 'com.bertramlabs.plugins:ratpack-asset-pipeline:2.4.3'
+  compile ratpack.dependency("dropwizard-metrics")
   testCompile "org.spockframework:spock-core:1.0-groovy-2.4"
 }

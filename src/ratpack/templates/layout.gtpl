@@ -1,21 +1,28 @@
-yieldUnescaped '''<!doctype html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
-'''
-//look at https://raw.githubusercontent.com/ratpack/ratpack/master/ratpack-site/src/ratpack/templates/layout.gtpl as an example
-head {
-  meta(charset:'utf-8')
-  title('Custom error page')
+//code from https://github.com/ratpack/example-books
+yieldUnescaped '<!DOCTYPE html>'
+html(lang:'en') {
+    head {
+        meta(charset:'utf-8')
+        title(title ?: 'Conference App')
+        meta('http-equiv': "Content-Type", content:"text/html; charset=utf-8")
+        meta(name: 'viewport', content: 'width=device-width, initial-scale=1.0')
+        script(src: '/jquery.min.js') {}
+        script(src: 'https://maxcdn.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js') {}
+        link(href: 'https://maxcdn.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css', rel: 'stylesheet')
+        link(href: 'https://maxcdn.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap-theme.min.css', rel: 'stylesheet')
+        link(href: '/application.css', rel: 'stylesheet')
 
-  meta(name: 'apple-mobile-web-app-title', content: 'Ratpack')
-  meta(name: 'description', content: 'Ratpack apps are lightweight, fast, composable with other tools and libraries, easy to test and enjoyable to develop.')
-  meta(name: 'viewport', content: 'width=device-width, initial-scale=1')
-
+        link(href: '/img/favicon.ico', rel: 'shortcut icon')
+    }
+    body {
+        div(class:'container') {
+            if (msg) {
+                div(class: 'alert alert-info alert-dismissable') {
+                    button(type: 'button', class: 'close', 'data-dismiss': 'alert', 'aria-hidden':'true', '&times;')
+                    yield msg
+                }
+            }
+            bodyContents()
+        }
+    }
 }
-body {
-  bodyContents()
-}
-
-yieldUnescaped '</html>'

@@ -1,26 +1,32 @@
 
-Ratpack project template
+Ratpack Tutorial
 -----------------------------
-This example contains tests and stubbed pages:
- * SiteError.groovy
- * index.html
- * registerForm.html
+This project uses ```git tag``` to identify the examples used in the presentation(which is
+contained within this project).
+Each tag represents the different states that I felt a newcomer to Ratpack would
+like to see example code of.
 
-### This commit contains a scaffolded site that shows how to render
+The tags and git command to checkout the code(after you clone the project)
+are:
 
-1. static files
-2. public assets
-3. a default error page by binding to server config
-4. groovy template pages
+``` git checkout Lazy_Bones```
 
-### Also contains Handlers that:
-1. processes web forms
-2. process path tokens "user/:username" where username is the token
+``` git checkout no_frills_site```
+
+``` git checkout API_Handlebars_ContentAware```
+
+``` git checkout BasicAuth_Example```
+
+``` git checkout Github_OAuth_Example```
+
+``` git checkout Asset_Pipeline_OAuth_Update```
+
+``` git checkout Dropwizard_Metrics```
+
 
  You can start the basic app with
 
 ```
     ./gradlew run
 ```
-=======
-# Ratpack-Tutorial
+Read the commit logs in addition to the code comments for further insight.

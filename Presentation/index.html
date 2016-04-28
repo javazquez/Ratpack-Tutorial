@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Ratpack Tutorial</title>
+
+		<meta name="description" content="Ratpack - Lean &amp; powerfull HTTP(S) apps">
+		<meta name="author" content="Juan Vazquez">
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/solarized.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+		<style >
+			.keyword{
+				font-weight: bold;
+			}
+		</style>
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1>Learning Ratpack</h1>
+					<h4>Keeping it classy</h4>
+					<p >
+						<small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Blog: <a target="_blank" href="http://javazquez.com/juan">Juan Vazquez</a> <br>
+							&nbsp;&nbsp;Twitter: <a target="_blank" href="https://twitter.com/javazquez">@javazquez</a> <br>
+						  Github: &nbsp;<a href="https://github.com/javazquez" target="_blank">javazquez</a>
+						</small>
+					</p>
+				</section>
+
+			<section>
+				<section>
+					<h2>What is Ratpack?</h2>
+					<ol>
+						<li>Ratpack is a set of Java libraries for building modern HTTP applications</li>
+						<li>It provides just enough for writing practical, high performance, apps</li>
+						<li>It is built on Java 8, <a href="http://netty.io/" target="_blank">Netty</a> and reactive principles.</li>
+						<li>Huge thanks to these <a href="https://ratpack.io/manual/current/about-the-project.html#active_project_members" target="_blank">people</a></li>
+					</ol>
+					<br> <br><br>
+					<h5>This presentation used excerpts From <a href="https://ratpack.io/" target="_blank">https://ratpack.io/</a></h5>
+				</section>
+
+
+				<section>
+					<h2>Concepts</h2>
+					<ol>
+						<li>Context</li>
+						<li>Registries</li>
+						<li>Handlers</li>
+						<li>Routes</li>
+						<li>Logging</li>
+						<li>Testing</li>
+
+					</ol>
+				</section>
+				<section>
+						<h2>Hello World</h2>
+						<pre><code data-trim class="groovy" >@Grapes([
+@Grab('io.ratpack:ratpack-groovy:1.1.1'),
+@Grab('org.slf4j:slf4j-simple:1.7.12')
+	])
+import static ratpack.groovy.Groovy.ratpack
+
+ratpack {
+handlers {
+	get {
+		render "Hello World!"
+	}
+	get(":name") {
+		render "Hello $pathTokens.name!"
+	}
+}
+}
+</code></pre>
+				</section>
+				<section>
+					<h2><a href="https://ratpack.io/manual/current/context.html" target="_blank">Context</a> provides</h2>
+					<ul>
+						<li>Access to the HTTP Request and Response</li>
+						<li>Delegation and flow control (via the next() and insert() methods)</li>
+						<li>Access to contextual objects</li>
+						<li>Convenience for common handler operations</li>
+						<li>The <b>Context</b> is a <b>Registry</b></li><!-- couldn't figure out how to get this to work with styling in time for presentation so... punting :D -->
+						<li>Supports partitioning application logic by providing different objects to different <a href="https://ratpack.io/manual/current/context.html#partitioning" target="_blank">partitions</a></li>
+					</ul>
+				</section>
+				<section>
+					<h2>Registries</h2>
+					<ul>
+						<li>The mechanism for inter-handler collaboration in Ratpack</li>
+					</ul>
+				</section>
+
+			<section>
+			<h2>Handlers</h2>
+			<ul>
+				<li>Respond to the request</li>
+				<li><a href="https://ratpack.io/manual/current/handlers.html#what_is_a_handler" target="_blank">Method that acts on a context</a></li>
+				<li>All request processing logic is simply the composition of handlers ("Chaining")</li>
+				<li>Insert handlers into the <a href="https://ratpack.io/manual/current/handlers.html#building_handler_chains" target="_blank">Chain </a>and immediately delegate to them</li>
+				<li>Delegate to the <b>next</b> handler </li>
+				<li>Handlers operate on a <b>context</b></li>
+			</ul>
+			</section>
+
+				<section>
+					<h2>Strongly Typed </h2>
+					<ul>
+						<li><a href="http://docs.groovy-lang.org/latest/html/api/groovy/transform/CompileStatic.html" target="_blank">@ComipileStatic</a></li>
+					</ul>
+				</section>
+				<section>
+					<h2>Non-Blocking</h2>
+					<h5>Explicit when you need to block</h5>
+					<pre>
+						<code data-trim class="groovy">// A handler that uses the API
+public static class DeletingHandler extends InjectionHandler {
+ void handle(final Context context, final Datastore datastore) {
+	 final int days = context.getPathTokens().asInt("days");
+	 Blocking.get(() -> datastore.deleteOlderThan(days))
+		 .then(i -> context.render(i + " records deleted"));
+ }
+}</code>
+					</pre>
+				</section>
+<section>
+<h2><a href="https://ratpack.io/manual/current/architecture.html#plugins_and_extensibility_through_the_registry" target="_blank">Look Ma.. no Plugins</a></h2>
+ <ul>
+	<li>Add-on integration with Google Guice facilitates a kind of plugin system through Guice modules</li>
+ </ul>
+
+</section>
+				<section>
+					<h2>Asynchronous</h2>
+					<h5><a href="http://beckje01.com/blog/2014/09/10/ratpack-promise/" target="_blank">Using Promises</a> - Jeff Beck</h5>
+					<pre>
+						<code data-trim class="groovy">
+import ratpack.test.embed.EmbeddedApp;
+import ratpack.exec.Promise;
+
+import static org.junit.Assert.assertEquals;
+
+public class Example {
+public static void main(String... args) throws Exception {
+ EmbeddedApp.fromHandler(ctx ->
+		 Promise.of((f) ->
+				 new Thread(() -> f.success("hello world")).start()
+		 ).then(ctx::render)
+ ).test(httpClient -> {
+	 assertEquals("hello world", httpClient.getText());
+ });
+}
+}</code>
+					</pre>
+				</section>
+				<section>
+					<h2>routes by method</h2>
+					from ratpack <a href="https://github.com/ratpack/example-books/blob/master/src/ratpack/ratpack.groovy#L86" target="_blank">example books project</a>
+				</section>
+				<section>
+					<h2>Logging</h2>
+					From <a href="https://ratpack.io/manual/current/logging.html#logging" target="_blank">ratpack.io</a>
+					<ul>
+						<li>No-Op - discards all logs (default)</li>
+						<li>Log4J</li>
+						<li>Logback - native SLF4J implementation with “zero memory and computational overhead”</li>
+						<li>Java Util Logging</li>
+						<li>Simple - logs messages at INFO level and higher to System.err</li>
+						<li>Jakarta Commons Logging</li>
+					</ul>
+				</section>
+				<section>
+					<h2><a href="https://ratpack.io/manual/current/testing.html#testing_ratpack_applications" target="_blank">Testing</a></h2>
+					<ul>
+						<li>Spock</li>
+						<li>Ratpack provides its own <a href="https://ratpack.io/manual/current/http-client.html#basic_get_request" target="_blank">HttpClient</a> which can be used to make remote HTTP calls. The Ratpack provided HttpClient is fully non-blocking and is a part of the core Ratpack library. Just like the Ratpack server, the HttpClient also uses Netty under the hood and in fact shares the same EventLoopGroup as per Netty best practices.</li>
+						<li><a href="https://github.com/javazquez/Ratpack-Tutorial/blob/Github_OAuth_Example/src/test/groovy/HandlerSpec.groovy#L33" target="_blank">show HandlerSpec</a></li>
+					</ul>
+
+				</section>
+			</section>
+
+				<section>
+					<section>
+						<h2>Tool Chain</h2>
+						<ul>
+							<li><a href="http://www.groovy-lang.org/" target="_blank">Groovy</a></li>
+							<li><a href="http://sdkman.io/" target="_blank">Sdkman (formally Groovy Version Manager GVM)</a></li>
+							<li><a href="https://github.com/pledbrook/lazybones" target="_blank">Lazybones</a>(via sdkman)</li>
+							<li><a href="http://gradle.org/" target="_blank">Gradle</a></li>
+						</ul>
+					</section>
+					<section>
+						<h2></h2>
+						<img src="images/groovy_logo_big.png" alt="Groovy Language" />
+					</section>
+					<section>
+						<img src="images/sdk-man-small-pattern.svg" alt="SDKMAN logo" />
+					</section>
+
+					<section>
+						<h2>Lazybones(via <a href="http://sdkman.io/" target="_blank">sdkman</a>)</h2>
+						<pre><code class="bash">&gt; sdk install lazybones
+&gt; lazybones create &lt;ratpack template&gt; &lt;ratpack version&gt; &lt;app name&gt;
+
+&gt; lazybones create ratpack my-ratpack-app
+&gt; cd my-ratpack-app
+&gt; ./gradlew run
+							</code>
+						</pre>
+					</section>
+					<section>
+						<h2>Gradle Build </h2>
+						<h5>build.gradle</h5>
+						<pre>
+							<code class="groovy">buildscript {
+  repositories {
+    jcenter()
+  }
+  dependencies {
+    classpath "io.ratpack:ratpack-gradle:1.1.1"
+  }
+}
+apply plugin: "io.ratpack.ratpack-groovy"
+apply plugin: "idea"
+
+repositories {
+  jcenter()
+}
+dependencies {
+  runtime "org.slf4j:slf4j-simple:1.7.12"
+}
+</code>
+						</pre>
+					</section>
+					<section>
+						<h2>Code that Gradle Wrapper runs</h2>
+						<h6>src/ratpack/ratpack.groovy</h6>
+						<pre>
+							<code class="groovy">import static ratpack.groovy.Groovy.ratpack
+
+ratpack {
+    handlers {
+        get {
+            render "Hello World!"
+        }
+        get(":name") {
+            render "Hello $pathTokens.name!"
+        }
+    }
+}
+&gt;[main] INFO ratpack.server.RatpackServer - Starting server...
+&gt;[main] INFO ratpack.server.RatpackServer - Building registry...
+&gt;[main] INFO ratpack.server.RatpackServer - Initializing 2 services...
+&gt;[main] INFO ratpack.server.RatpackServer - Ratpack started(development)
+ for http://localhost:5050
+ </code>
+</pre>
+
+
+					</section>
+</section>
+
+<section>
+	<section>
+		<h2>Ratpack Tutorial</h2>
+		<h4><a href="https://github.com/javazquez/Ratpack-Tutorial" target="_blank">https://github.com/javazquez/Ratpack-Tutorial</a></h4>
+	</section>
+	<section>
+		<h2>git tags</h2>
+		<ul>
+			<li>Lazy_Bones</li>
+			<li>no_frills_site</li>
+			<li>API_Handlebars_ContentAware</li>
+			<li>BasicAuth_Example</li>
+			<li>Github_OAuth_Example</li>
+			<li>Asset_Pipeline_OAuth_Update</li>
+			<li>Dropwizard_Metrics</li>
+		</ul>
+	</section>
+<section>
+	<h2>git checkout Lazy_Bones </h2>
+	<img src="images/lazy_bones.tiff" alt="Screen capture of running lazy_bones tag" />
+</section>
+<section>
+	<h2>git checkout no_frills_site</h2>
+	(run the app and click the below links to see examples)
+	<ul>
+		<li><a href="http://localhost:5050/" target="_blank">Simple Conference Home Page</a></li>
+		<li><a href="http://localhost:5050/register/" target="_blank">register page</a></li>
+		<li><a href="http://localhost:5050/template/" target="_blank">template page example (gtpl)</a></li>
+	</ul>
+</section>
+</section>
+<section>
+	<section>
+		<h3><a href="https://github.com/javazquez/Ratpack-Tutorial/commit/689a93b75bb0e3a4b3138825cbcec20fc6bb8c72" target="_blank">git checkout API_Handlebars_ContentAware</a></h3>
+		(run the app and click the below links to see examples)
+		<ul>
+		<li><a href="http://localhost:5050/" target="_blank">Home </a> Page is updated with bootstrap theme</li>
+		<li><a href="http://localhost:5050/?user=javazquez&demo=ratpack" target="_blank">Home </a> Page shows request params</li>
+		<li><a href="http://localhost:5050/register/" target="_blank">Register</a> pages shows simple post request</li>
+		<li><a href="http://localhost:5050/userDetails/123" target="_blank">Path Tokens</a></li>
+		</ul>
+	<pre>
+		<code data-trim class="html">
+	&lt;!DOCTYPE html>
+	&lt;html&gt;
+	  &lt;head&gt;
+	    &lt;meta charset="utf-8"&gt;
+	    &lt;title&gt;Accept registration&lt;/title&gt;
+	  &lt;/head&gt;
+	  &lt;body&gt;
+		&lt;h1&gt;Welcome @{{twitterHandle}}!&lt;/h1&gt;
+	  &lt;/body&gt;
+	&lt;/html&gt;
+	</code>
+	</pre>
+
+	</section>
+	<section>
+		<h2>API_HANDLEBARS_CONTENTAWARE </h2>
+		<h4>(API endpoint)</h4>
+		(run the app and click the below links to see examples)
+		<b>Successful call</b>
+		<pre>
+			<code data-trim class="bash">curl -d "message=Groovy is Gr8" \
+		http://localhost:5050/api/sendGroupMessage/javazquez
+
+	 user javazquez says 'Groovy is Gr8'
+	</code>
+	</pre>
+	<a href="http://localhost:5050/api" target="_blank">Custom Error</a>
+	<pre><code data-trim class="groovy">
+	prefix("api"){
+	    //add a more specific api error handler rather than global SiteErrorHandler
+	    register { add(ApiErrorHandler, new ApiErrorHandler()) }
+	    post('sendGroupMessage/:user'){
+	      def tokens = get(PathBinding).allTokens
+	      parse(Form).then{ form ->
+	        render "user ${tokens.user} says '${form.get('message')}'"
+	      }
+	    }		</code>
+		</pre>
+		<br>
+		<br>
+	</section>
+	<section>
+		<h2>Content Aware</h2>
+		<ul>
+			<li><a href="https://github.com/javazquez/Ratpack-Tutorial/blob/API_Handlebars_ContentAware/src/ratpack/Ratpack.groovy#L70" target="_blank">JSON</a></li>
+			<li><a href="https://github.com/javazquez/Ratpack-Tutorial/blob/API_Handlebars_ContentAware/src/ratpack/Ratpack.groovy#L74" target="_blank">Plain Text</a></li>
+			<li><a href="https://github.com/javazquez/Ratpack-Tutorial/blob/API_Handlebars_ContentAware/src/ratpack/Ratpack.groovy#L78" target="_blank">XML</a></li>
+			<li><a href="https://github.com/javazquez/Ratpack-Tutorial/blob/API_Handlebars_ContentAware/src/ratpack/Ratpack.groovy#L82" target="_blank">HTML</a></li>
+			<li><a href="https://github.com/javazquez/Ratpack-Tutorial/blob/API_Handlebars_ContentAware/src/ratpack/Ratpack.groovy#L87" target="_blank">Custom Johnny #5 Type!</a></li>
+			<li><a href="https://github.com/javazquez/Ratpack-Tutorial/blob/API_Handlebars_ContentAware/src/ratpack/Ratpack.groovy#L92" target="_blank">No Match result</a></li>
+		</ul>
+	</section>
+</section>
+<section>
+
+		<h2><a href="https://github.com/javazquez/Ratpack-Tutorial/commit/45c975434eaabcfc52949e9d884cec373f942a0e" target="_blank">git checkout BasicAuth_Example</a></h2>
+		(run the app and click the below links to see examples)
+
+		<ul>
+			<li><a href="http://localhost:5050/basicAuth" target="_blank">Login</a> with user=admin &amp; pwd=admin</li>
+			<li><a href="http://localhost:5050/basicAuth/logout/" target="_blank">Logout</a></li>
+		</ul>
+
+</section>
+
+
+
+<section>
+	<h2><a href="https://github.com/javazquez/Ratpack-Tutorial/commit/7c32c2804217c48d1d377be422ba1023934b0c7c" target="_blank">git checkout Github_OAuth_Example</a></h2>
+	(run the app and click the below links to see examples)<br><br>
+	<ul>
+		<li>Enter your <a href="https://github.com/javazquez/Ratpack-Tutorial/blob/Github_OAuth_Example/src/ratpack/Ratpack.groovy#L133" target="_blank">github credentials</a> to get this example to work</li>
+		<li><a href="http://localhost:5050/githubAuth" target="_blank">http://localhost:5050/githubAuth</a></li>
+	</ul>
+</section>
+<section>
+
+<section>
+	<h2><a href="https://github.com/javazquez/Ratpack-Tutorial/commit/8b57d5e091bccb6f67f70accab9efda051a1147b" target="_blank">git checkout Asset_Pipeline_OAuth_Update</a></h2>
+	<ul>
+		<li>check out <a href="https://github.com/bertramdev/asset-pipeline" target="_blank">Asset Pipeline</a></li>
+	</ul>
+	<br>
+	<a href="http://localhost:5050/" target="_blank"><img height="300" src="images/asset-pipeline-ex.tiff" alt="screen capture of web console proving asset pipeline is working" /></a>
+
+</section>
+<section>
+	<h2>Asset Pipleline</h2>
+	<ul>
+		<li>Asset Bundling</li>
+		<li>Extensible Modules (Supports LESS, Handlebars, Coffeescript, Ember-Handlebars, SASS) via other modules.</li>
+		<li>Cache Digest Names (Creates cache digested names and stores aliases in a manifest.properties)</li>
+		<li>Js Minification</li>
+		<li>Js SourceMap Generation</li>
+		<li>Css Minification / Relative Path assertion</li>
+		<li>File Encoding Support</li>
+		<li>GZIP File Generation</li>
+		<li>Last-Modified Header</li>
+	</ul>
+</section>
+</section>
+<section>
+	<h2>git checkout Dropwizard_Metrics </h2>
+	(run the app and click the below link to see the example)
+	<li><a href="http://localhost:5050/metrics" target="_blank">http://localhost:5050/metrics</a></li>
+</section>
+<section>
+	<h2>other topics</h2>
+	<ul>
+		<li>rxjava</li>
+		<li>springboot</li>
+		<li>hystrix</li>
+		<li>various external configuration options</li>
+	</ul>
+</section>
+
+<section>
+	<h2>Thank you</h2>
+	questions?
+</section>
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>

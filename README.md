@@ -2,7 +2,9 @@
 Ratpack Tutorial
 -----------------------------
 This project uses ```git tag``` to identify the examples used in the presentation(which is
-contained within this project). Presentation is located in Presentation/index.html.
+contained within this project). Presentation is located in Presentation/index.html, or
+http://javazquez.github.io/Ratpack-Tutorial/Presentation/#/
+
 Each tag represents the different states that I felt a newcomer to Ratpack would
 like to see example code of.
 
